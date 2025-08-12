@@ -575,6 +575,40 @@
             }
         }
 
+        /* Mobile: lighten global overlay for brighter background image */
+        @media (max-width: 768px) {
+            body::before {
+                background-color: rgba(0, 0, 0, 0.25);
+            }
+        }
+
+        /* Mobile: use a separate fixed layer to avoid magnification issues */
+        .content-fixed-bg {
+            position: fixed;
+            inset: 0;
+            background: #111 url('/assets/ts2.jpg') center/cover no-repeat;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        @media (max-width: 768px) {
+            .content-fixed-bg { display: none; }
+            .content-fixed-bg.visible {
+                display: block;
+                background-position: center;
+                background-size: cover;
+                background-repeat: no-repeat;
+            }
+            .content-wrapper { background: none !important; }
+        }
+
+        /* Mobile: increase section height to reveal more of background */
+        @media (max-width: 768px) {
+            section:not(#home) {
+                min-height: 120vh;
+            }
+        }
+
         .package-card,
         .review-card,
         .about-container,
@@ -915,6 +949,7 @@
             a meaningful gift for someone special, we craft custom songs that bring your story to life.</p>
     </section>
 
+    <div class="content-fixed-bg" aria-hidden="true"></div>
     <div class="content-wrapper">
         <section id="services">
             <div class="section-heading">
@@ -1312,12 +1347,21 @@
             const whatsappButton = document.querySelector('.whatsapp-button');
             const hideOnScrollIcons = document.querySelectorAll('.social-icon.hide-on-scroll');
             const homeSection = document.getElementById('home');
+            const fixedBg = document.querySelector('.content-fixed-bg');
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
                     const onHome = entry.isIntersecting;
                     hideOnScrollIcons.forEach(icon => {
                         icon.style.display = onHome ? 'flex' : 'none';
                     });
+                    // Toggle fixed background visibility on mobile for non-home sections
+                    if (fixedBg) {
+                        if (onHome) {
+                            fixedBg.classList.remove('visible');
+                        } else {
+                            fixedBg.classList.add('visible');
+                        }
+                    }
                 });
             }, { threshold: 0.6 });
             if (homeSection) observer.observe(homeSection);
